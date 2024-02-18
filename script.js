@@ -2,30 +2,44 @@ let list = document.querySelector(".to-do-bottom ul");
 let button = document.querySelector("button");
 let text = document.querySelector("Input");
 let count = 0;
+let data = [];
+
+window.addEventListener("load", function () {
+  console.log("Window has loaded");
+  const storedData = localStorage.getItem("userData");
+  if (storedData) {
+    data = JSON.parse(storedData);
+    count = data.length;
+    renderList();
+  }
+});
 
 button.addEventListener("click", () => {
+  event.preventDefault();
   if (text.value === "") {
     alert("Please enter something first");
   } else if (count >= 6) {
     alert("List limit reached");
   } else {
-    let newList = document.createElement("li");
-    newList.innerText = text.value;
-    list.append(newList);
-    console.log(text.value);
+    data.push(text.value);
+    localStorage.setItem("userData", JSON.stringify(data));
+    renderList();
     text.value = "";
-    console.log(document.querySelectorAll("li"));
-    let listItems = document.querySelectorAll("li");
-    toRemove(listItems);
     count++;
   }
 });
 
-function toRemove(listItems) {
-  for (const item of listItems) {
-    item.addEventListener("dblclick", (event) => {
-      event.target.remove();
+function renderList() {
+  list.innerHTML = "";
+  data.forEach((item, index) => {
+    let listItem = document.createElement("li");
+    listItem.textContent = item;
+    listItem.addEventListener("dblclick", () => {
+      data.splice(index, 1);
+      localStorage.setItem("userData", JSON.stringify(data));
+      renderList();
       count--;
     });
-  }
+    list.appendChild(listItem);
+  });
 }
